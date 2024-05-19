@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta http-equiv='n-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Ulam Prime Spiral</title>
+    <style>
+        body{
+            background-color:#333;
+            color:white;
+            font-family: monospace;
+        }
+        ::-webkit-scrollbar{
+            display: none;
+        }
+        .formInputs:hover{
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <main >
+    </main>
+    <div class="formInputs absolute top-2 right-2 flex flex-col bg-orange-400 opacity-20 p-4 rounded-md text-black" >
+
+        <p>Background Color:</p>
+        <input type="text" class="p-1 rounded my-1" id="bgColor" placeholder="#327DFF">
+        
+        <p>Line Color:</p>
+        <input type="text" class="p-1 rounded my-1" id="lineColor" placeholder="#327DFF">
+        
+        <p>Ball Color:</p>
+        <input type="text" class="p-1 rounded my-1" id="circleColor" placeholder="#327DFF">
+
+                
+        <p>Limit:</p>
+        <input type="text" class="p-1 rounded my-1" id="limit" placeholder="#327DFF" value="500">
+
+        <button id="drawbtn" class="p-2 border-1 bg-orange-300 my-1 rounded-md hover:bg-orange-500">Draw</button>
+    </div>
+
+    <script src="scripts/p5.js"></script>
+    <script src="scripts/jquery.js"></script>
+    <script src="scripts/tailwindcdn.js"></script>
+
+    <script>        
+
+    // Global Variables
+        // Canvas Size
+        let W = window.screen.width,H = window.screen.height
+
+        let BgColor = "#327DFF",lineColor = "black",eclipseColor = "black"
+
+        // Pixel Size
+        let tSize = 8
+        //Pixel Gap 
+        let pixGap = 5
+
+        // Start Position (Middle of canvas)
+        let posX = W/2,posY = H / 2
+        let prevX = W / 2,prevY = H / 2 //previous position for lines
+
+        // Number start limit
+        let n = 1
+        let limit  = 1000000
+
+        // For Spiral Pattern
+        // Count will go up till CountLimit,
+        // if Count == CountLimit && CountLimit == prevCountlimit  then Rotate Array and change direction
+        // The spiral pattern is 1,1,2,2,3,3,4,4.....
+        let count = 0,Countlimit = 1,prevCountLimit;
+    // Global Variables
+    
+    // Helper Functions 
+            // cases up, left, down , right
+            const Arr = ["up","left","down","right"]
+            let ArrPointer = 3   
+            //Arr Pointer Rotate  
+            function rotateArr(){
+                if(ArrPointer > Arr.length - 2){
+                    ArrPointer = 0
+                }else{
+                    ArrPointer++
+                }
+            }
+    
+            // Change Position based on Arrpointer
+            function rotatePixel(){
+                let state = Arr[ArrPointer]
+                switch(state){
+                        case "up":
+                            posY-= (tSize + pixGap)
+                            break;
+                            
+                        case "left":
+                            posX-= (tSize + pixGap)
+                            break;
+        
+                        case "down":
+                            posY+= (tSize + pixGap)
+                            break;
+        
+                        case "right":
+                            posX+= (tSize + pixGap)
+                            break;
+                    }
+            }
+
+            
+            function isPrime(num){
+                if(num > 1){
+                    for(let i = 2;i<= Math.sqrt(num);i++){
+                        if(num % i == 0){
+                            return false
+                        }
+                    }
+                    return true
+                }else{
+                    return false
+                }
+            }
+    // Helper Functions 
+
+        function setup() {
+            createCanvas(W, H);
+            background(BgColor)
+            textSize(tSize)
+
+            frameRate(100);
+        }
+
+
+        
+        function draw() {
+
+            drawNumber()
+            rotatePixel()
+            
+            if(count == Countlimit){       
+                rotateArr()
+            }           
+
+
+        }
+                
+        function drawNumber(){
+            stroke(lineColor)
+            line(prevX,prevY,posX,posY)
+
+            prevX = posX
+            prevY = posY
+            
+            // console.log(n,count,Countlimit);
+            if(isPrime(n)){
+                fill(eclipseColor)
+                stroke(eclipseColor)
+                // text(String(n),posX,posY)
+                ellipse(posX,posY,tSize,tSize)
+            }
+            
+            if(n >= limit){
+                // noLoop()
+                return 
+            }
+            n++
+
+            if(count < Countlimit){
+                count++;
+            }else{
+                count = 1
+
+                if(Countlimit == prevCountLimit){
+                    Countlimit++
+                }else{
+                    prevCountLimit = Countlimit
+                }
+
+            }
+        }
+
+
+        // User Input
+
+        if(W < 700){
+            $(".formInputs").hide();
+        }
+
+        $("#drawbtn").click(function (e) { 
+            e.preventDefault();
+            // noLoop()
+            clear()
+            n = 1
+            posX = W/2,posY = H / 2,prevX = W/2, prevY = H/2
+            count = 0
+            Countlimit = 1
+            prevCountLimit = undefined
+            ArrPointer = 3
+
+            BgColor = $("#bgColor").val();
+            lineColor =  $("#lineColor").val();
+            eclipseColor = $("#circleColor").val();
+            limit = $("#limit").val();
+
+            setup()
+            draw()
+            // alert("hi")
+        });
+    </script>
+
+</body>
+</html>
